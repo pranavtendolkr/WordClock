@@ -13,7 +13,7 @@ byte bcdToDec(byte val)  {
   return ( (val/16*10) + (val%16) );
 }
 
-struct Time getTime(){
+struct Time getRTCTime(){
   struct Time currentTime = {0,0,0};
   // Reset the register pointer
   Wire.beginTransmission(DS1307_ADDRESS);
@@ -53,7 +53,7 @@ struct Time getTime(){
 
 
 
-void setTime(struct Time time){
+void setRTCTime(struct Time time){
 
   byte second =      time.second; //0-59
   byte minute =      time.minute; //0-59

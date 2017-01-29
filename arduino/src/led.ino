@@ -10,20 +10,30 @@ uint32_t convertColor(uint8_t r, uint8_t g, uint8_t b) {
   return ((uint32_t)r << 16) | ((uint32_t)g <<  8) | b;
 }
 
+uint32_t setBrightness(uint32_t color, uint8_t brightness ) {
+  uint8_t r =  (uint8_t)(color >> 16) * BRIGHTNESS/MAX_BRIGHTNESS;
+  uint8_t g = (uint8_t)(color >>  8) * BRIGHTNESS/MAX_BRIGHTNESS;
+  uint8_t b = (uint8_t)(color >>  0) * BRIGHTNESS/MAX_BRIGHTNESS;
+  return ((uint32_t)r << 16) | ((uint32_t)g <<  8) | b;
+}
+
+
+
+// Warning, if else ladder. :X
 void setLEDTime(struct PIXEL *individualPixels,struct Time time){
    /* Parse time values to light corresponding pixels */
     individualPixels[28].state=true; //Light "IT"
     individualPixels[29].state=true; //Light "IS"
 
-    //Light "O CLOCK"
-    individualPixels[0].state=true;
-    individualPixels[1].state=true;
+    // //Light "O CLOCK"
+    // individualPixels[0].state=true;
+    // individualPixels[1].state=true;
 
-    // /* Minutes between 0-5 - Light "O CLOCK" */
-    // if ((time.minute>=0 && time.minute<5)){
-    //   individualPixels[0].state=true;
-    //   individualPixels[1].state=true;
-    // }
+    /* Minutes between 0-5 - Light "O CLOCK" */
+    if ((time.minute>=0 && time.minute<5)){
+      individualPixels[0].state=true;
+      individualPixels[1].state=true;
+    }
 
     /* Minutes between 5-10 or 55-60 - Light "FIVE," "MINUTES" */
     if ((time.minute>=5 && time.minute<10) || (time.minute>=55 && time.minute<60)){
@@ -40,17 +50,17 @@ void setLEDTime(struct PIXEL *individualPixels,struct Time time){
     }
 
     /* Minutes between 15-20 or 45-50 - Light "QUARTER" */
-    if ((time.minute>=15 && time.minute<20) || (time.minute>=45 && time.minute<50)){
+    if ((time.minute>=15 && time.minute<20)  || (time.minute>=45 && time.minute<50)){
       individualPixels[27].state=true;
       individualPixels[26].state=true;
     }
 
     /* Minutes between 20-25 or 40-45 - Light "TWENTY," "MINUTES" */
-    if ((time.minute>=20 && time.minute<25) ){// || (m>=40 && m<45)){
+    if ((time.minute>=20 && time.minute<25)  || (time.minute>=40 && time.minute<45)){
       individualPixels[24].state=true;
       individualPixels[25].state=true;
-      individualPixels[26].state=true;
-      individualPixels[27].state=true;
+      individualPixels[22].state=true;
+      individualPixels[23].state=true;
     }
 
     /* Minutes between 25-30 or 35-40 - Light "TWENTY," "FIVE," "MINUTES" */
@@ -157,9 +167,6 @@ void setLEDTime(struct PIXEL *individualPixels,struct Time time){
 
 
 
-
-
-
 // Input a value 0 to 255 to get a color value.
 // The colours are a transition r - g - b - back to r.
 uint32_t Wheel(byte WheelPos) {
@@ -177,9 +184,23 @@ uint32_t Wheel(byte WheelPos) {
 
 
 
-
 void setLEDColor(struct PIXEL *individualPixels,int colormode){
+  switch (colormode) {
+    case 0:
+    default:
+      setLEDSolidCOlor(individualPixels);
+      break;
+  }
+  //set brightness for the LEDStrip
   for(int i=0; i<NUMPIXELS; i++){
-    individualPixels[i].color=convertColor(0, 0, 255);
+    // yes, we set brightness by manipulating all 3 color values uniformly
+    individualPixels[i].color=setBrightness(individualPixels[i].color, BRIGHTNESS);
+  }
+}
+
+
+void setLEDSolidCOlor(PIXEL *individualPixels){
+  for(int i=0; i<NUMPIXELS; i++){
+    individualPixels[i].color=convertColor(SOLID_red,SOLID_green, SOLID_blue);
   }
 }
