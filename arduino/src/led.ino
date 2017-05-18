@@ -1,7 +1,7 @@
 // colormodes:
 // 0: all one solid color;
 // 1: each word individual color
-// 2: slow random transition
+// 2: random colors for each letter
 // 3: fast random transition
 
 
@@ -193,11 +193,20 @@ uint32_t Wheel(byte WheelPos) {
 //switch construct to call appropriate functions based on colormode
 void setLEDColor(struct PIXEL *individualPixels,int colormode){
         switch (colormode) {
+		// set to white. no change in color
         case 0:
-                setLEDSolidCOlor(individualPixels);
+                setLEDSolidColor(individualPixels,SOLID_red,SOLID_green,SOLID_blue);
                 break;
+        case 1:
+                setLEDWordRandomColor(individualPixels);
+                break;
+        case 2:
+                setLEDRandomLetters(individualPixels);
+                break;
+
         default:
-                setLEDSolidCOlor(individualPixels);
+				// set to white
+                setLEDSolidColor(individualPixels,255,255,255);
                 break;
         }
         //set brightness for the all pixels
@@ -208,10 +217,59 @@ void setLEDColor(struct PIXEL *individualPixels,int colormode){
 }
 
 
-
 // sets leds to one solid color
-void setLEDSolidCOlor(PIXEL *individualPixels){
+void setLEDSolidColor(PIXEL *individualPixels, int r, int g, int b){
         for(int i=0; i<NUMPIXELS; i++) {
-                individualPixels[i].color=convertColor(SOLID_red,SOLID_green, SOLID_blue);
+                individualPixels[i].color=convertColor(r,g,b);
         }
+}
+
+//sets each word random individual color
+/*
+WORDS AND THEIR CORROSPONDING LED NUMBERS:
+IT	 			28
+IS 				29
+O'clock 		0,1
+Minutes 		22,23
+minutes-five 	21
+minutes-ten     30
+QUARTER	   		26,27
+minutes-TWENTY 	24,25
+HALF			31
+PAST			20
+TO				19
+ONE				18
+TWO				17
+THREE			13,14
+FOUR			15
+FIVE			16
+SIX				12
+SEVEN			10,11
+EIGHT			8,9
+NINE 			4
+TEN				5
+ELEVEN			6,7
+TWELVE			2,3
+*/
+void setLEDWordRandomColor(PIXEL *individualPixels){
+	// total 23 different words on the face, one word can have a max of 2 LEDS. -1 means LED not present
+	int words[23][2] = {
+{28,-1},{29,-1},{0,1},{22,23},{21,-1},{30,-1},{26,27},{24,25},{31,-1},{20,-1},{19,-1},{18,-1},{17,-1},{13,14},{15,-1},{16,-1},{12,-1},{10,11},{8,9},{5,-1},{4,-1},{6,7},{2,3} }
+    for int (i=0; i<23; i++){
+	  int red = random(256);
+	  int green = random(256);
+	  int blue = random(256);
+	  individualPixels[words[i][0]].color=convertColor(red,green,blue);
+	  if(words[i][1] != -1)
+		individualPixels[words[i][1]].color=convertColor(red,green,blue);
+	}
+}
+
+
+// sets each led to a random color. May look HOrrible.
+void setLEDRandomLetters(PIXEL *individualPixels){
+	for(int i=0;i<NUMPIXELS; i++){
+		individualPixels[i].color=convertColor(random(256),random(256),random(256))
+	}
+
 }
